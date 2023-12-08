@@ -1,40 +1,23 @@
-interface IKey {
-  getSignature(): number;
-}
 
-interface IPerson {
-  name: string;
-  getKey(): number;
-}
-
-interface IHouse {
-  door: boolean;
-  tenants: Array<object>;
-  comeIn(person: object): void;
-
-}
-
-
-
-class Key implements IKey {
+class Key {
   private signature: number = Math.floor(Math.random() * 1000);
   getSignature(): number {
     return this.signature;
   }
 }
 
-class Person implements IPerson {
-  constructor(public name: string, private key: number) {}
-  getKey(): number {
+class Person {
+  constructor(private key: Key) {}
+  getKey(): Key {
     return this.key;
   }
 }
 
-abstract class House implements IHouse {
+abstract class House {
   door: boolean = false;
   tenants: Array<object> = [];
 
-  constructor(protected key: number) {};
+  constructor(protected key: Key) {};
 
   comeIn(person: object): void {    
     
@@ -45,16 +28,16 @@ abstract class House implements IHouse {
     }    
     console.log("Sorry, the door is closed!");
   }
-  abstract OpenDoor(key: number): void;
+  abstract openDoor(key: Key): void;
 }
 
 class MyHouse extends House {
-  constructor(key: number) {
+  constructor(key: Key) {
     super(key);   
   }
 
-  OpenDoor(key: number): void {    
-    if (key === this.key) {
+  openDoor(key: Key): void {    
+    if (key.getSignature() === this.key.getSignature()) {
       this.door = true;
       console.log("Door is open");      
     }
@@ -62,20 +45,19 @@ class MyHouse extends House {
   }
 }
 
-const myHouseKey = new Key().getSignature();
+const key = new Key();
+console.log(key);
 
-const tenantKey = new Key().getSignature();
 
-const house = new MyHouse(myHouseKey);
+const house = new MyHouse(key);
+console.log(house);
 
-const me = new Person("Olha", myHouseKey);
+const person = new Person(key);
+console.log(person);
 
-const tenant = new Person("Alex", tenantKey);
 
-house.OpenDoor(me.getKey());
-house.comeIn(me);
-house.OpenDoor(tenant.getKey());
-house.comeIn(tenant);
-console.log(house.tenants);
+house.openDoor(person.getKey());
+
+house.comeIn(person);
 
 export {};
